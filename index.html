@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva del Curso: INF129 Programación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Updated to a vibrant multi-color scale for better visual distinction. -->
+    <!-- Application Structure Plan: The application is designed as a single-page interactive dashboard with a fixed sidebar for navigation. This structure was chosen to provide students with a clear, non-linear way to access information. Instead of forcing them through a sequence of slides, they can jump directly to the section of interest (e.g., "Evaluaciones" or "Fechas Clave"). Key interactions include a dynamic chart for grade weighting and clickable cards for the learning model, making data consumption more engaging and intuitive than a static document. The user flow is centered on exploration, allowing students to quickly find answers to their specific questions. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Evaluation percentages (Certámenes 50%, Controles 20%, Tareas 20%, Cuestionarios 5%, Ticket Salida 5%). Goal: Inform & Compare. Viz/Method: Interactive Donut Chart. Interaction: Hover to see details of each evaluation component. Justification: A donut chart provides an immediate, intuitive understanding of how different evaluations contribute to the final grade, which is more effective than a simple table. Library: Chart.js (Canvas).
+        - Report Info: Three-pillar learning model (Pre-clase, Cátedra, Lab+Ayudantía). Goal: Organize & Explain. Viz/Method: Interactive Cards (HTML/CSS/JS). Interaction: Click on a card to expand and read the detailed description. Justification: This transforms a static concept into an engaging, explorable element, encouraging user interaction to learn more about each pillar. Method: HTML/Tailwind/JS.
+        - Report Info: Course Units & Key Dates. Goal: Inform. Viz/Method: Styled Lists & Tables. Interaction: None needed. Justification: For straightforward information like a list of topics or dates, clean, well-structured HTML tables and lists are the clearest and most accessible presentation method. Method: HTML/Tailwind.
+        - Report Info: Academic Honesty & Task Methodology. Goal: Emphasize & Inform. Viz/Method: Highlighted Text Blocks. Interaction: None needed. Justification: Key rules and consequences (like the 'nota 40' for not being able to explain code) are highlighted with distinct background colors and icons to draw immediate attention, ensuring critical information is not missed. Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slightly cooler background */
+            color: #334155; /* Slate 700 for better contrast */
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            transform-origin: left;
+        }
+        .nav-link.active {
+            background-color: #e0e7ff; /* Indigo 100 */
+            color: #3730a3; /* Indigo 800 */
+            font-weight: 700;
+            border-left: 4px solid #4f46e5; /* Indigo 600 */
+        }
+        .nav-link:not(.active):hover {
+            background-color: #f1f5f9; /* Slate 100 */
+            color: #334155;
+            transform: scale(1.05);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: auto;
+            min-height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-4 md:p-6 sticky top-0 md:h-screen">
+            <div class="flex items-center mb-8">
+                <div class="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-2xl font-bold text-white">P</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800">INF129</h1>
+                    <p class="text-sm text-slate-500">Guía del Curso</p>
+                </div>
+            </div>
+            <nav id="navigation" class="space-y-2">
+                <a href="#bienvenida" class="nav-link flex items-center p-3 rounded-lg active">
+                    <span class="mr-3">👋</span> Bienvenida
+                </a>
+                <a href="#modelo" class="nav-link flex items-center p-3 rounded-lg">
+                    <span class="mr-3">📚</span> Modelo de Aprendizaje
+                </a>
+                <a href="#evaluaciones" class="nav-link flex items-center p-3 rounded-lg">
+                    <span class="mr-3">📊</span> Evaluaciones
+                </a>
+                 <a href="#metodologia" class="nav-link flex items-center p-3 rounded-lg">
+                    <span class="mr-3">💻</span> Metodología y Reglas
+                </a>
+                <a href="#fechas" class="nav-link flex items-center p-3 rounded-lg">
+                    <span class="mr-3">🗓️</span> Fechas Clave
+                </a>
+                <a href="#consejos" class="nav-link flex items-center p-3 rounded-lg">
+                    <span class="mr-3">💡</span> Consejos para el Éxito
+                </a>
+            </nav>
+            <div class="mt-10 p-4 bg-slate-100 rounded-lg text-center">
+                <p class="text-sm text-slate-600">Semestre 2025-2</p>
+                <p class="text-xs text-slate-500 mt-1">Universidad Técnica Federico Santa María</p>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto">
+            <div id="bienvenida" class="content-section active">
+                <h2 class="text-4xl font-extrabold text-slate-800 mb-4">¡Bienvenidos a INF129: Programación!</h2>
+                <p class="text-lg text-slate-600 mb-8">Esta es tu guía interactiva para el semestre. Aquí encontrarás todo lo que necesitas saber sobre la estructura del curso, las evaluaciones y cómo tener éxito. ¡Explora las secciones para empezar!</p>
+                
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">¿Por qué aprender a programar hoy?</h3>
+                    <p class="text-slate-700 mb-4">En un mundo con herramientas como ChatGPT, podrías preguntarte: ¿para qué necesito aprender a programar? La respuesta es simple: este curso no se trata solo de escribir código, sino de aprender a <strong>pensar, resolver problemas y entender la lógica</strong> que hay detrás de la tecnología.</p>
+                    <p class="text-slate-700">Desarrollarás un pensamiento crítico y una capacidad de análisis que ninguna inteligencia artificial puede reemplazar. Nuestro foco está en tu <strong>aprendizaje individual y tu autonomía</strong>, habilidades que te servirán para toda tu carrera profesional.</p>
+                </div>
+            </div>
+
+            <div id="modelo" class="content-section">
+                <h2 class="text-4xl font-extrabold text-slate-800 mb-4">Nuestro Modelo de Aprendizaje</h2>
+                <p class="text-lg text-slate-600 mb-8">El curso se basa en un modelo de tres pilares diseñados para que construyas tu conocimiento de manera sólida y progresiva. Cada pilar se apoya en el anterior, por lo que tu participación en cada etapa es fundamental.</p>
+                <div id="learning-model-container" class="grid md:grid-cols-3 gap-8">
+                </div>
+            </div>
+
+            <div id="evaluaciones" class="content-section">
+                <h2 class="text-4xl font-extrabold text-slate-800 mb-4">Ponderaciones y Evaluaciones</h2>
+                <p class="text-lg text-slate-600 mb-8">Tu progreso se medirá a través de varios componentes. El siguiente gráfico muestra cómo cada evaluación contribuye a tu nota final. Pasa el cursor sobre cada sección para ver los detalles.</p>
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="chart-container">
+                        <canvas id="ponderacionesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="metodologia" class="content-section">
+                <h2 class="text-4xl font-extrabold text-slate-800 mb-4">Metodología y Reglas Claras</h2>
+                <p class="text-lg text-slate-600 mb-8">Para asegurar un aprendizaje justo y efectivo para todos, hemos establecido una metodología de trabajo clara y algunas reglas importantes que debes conocer.</p>
+                
+                <div class="space-y-8">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-bold text-slate-900 mb-4">Tareas en SMOJ e Interrogaciones</h3>
+                        <p class="text-slate-700 mb-4">En las semanas con tarea, deberás resolver 2 ejercicios en la plataforma SMOJ. Tienes intentos ilimitados dentro del plazo. El objetivo es que practiques y domines los conceptos.</p>
+                        <div class="mt-6 p-6 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+                            <h4 class="font-bold text-amber-800">⚠️ ¡Atención a las Interrogaciones Aleatorias!</h4>
+                            <p class="text-amber-700 mt-2">Para verificar que realmente comprendes tu código, realizaremos interrogaciones verbales a algunos estudiantes. Es crucial que sepas explicar tu solución.</p>
+                            <ul class="list-disc list-inside mt-3 space-y-2 text-amber-700">
+                                <li>Si completas la tarea pero <strong>no puedes explicar tu código</strong>, tu nota máxima en esa tarea será un <strong>40</strong>.</li>
+                                <li>Si <strong>no asistes</strong> el día de la interrogación, tu nota en esa tarea será un <strong>0</strong>.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-bold text-slate-900 mb-4">Tickets de Salida</h3>
+                        <p class="text-slate-700 mb-4">En las semanas sin tarea, usaremos "Tickets de Salida" al final de la ayudantía. Son pequeñas evaluaciones para reforzar lo aprendido y actuar como un sistema de alerta temprana si necesitas apoyo adicional.</p>
+                         <p class="text-slate-600 font-medium">La inasistencia a la ayudantía se calificará con un <strong>0</strong> en el ticket de esa semana.</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-2xl font-bold text-slate-900 mb-4">Honestidad Académica</h3>
+                        <p class="text-slate-700 mb-4">El trabajo individual es la base de este curso. La copia o el uso no autorizado de IA (como ChatGPT) para realizar tus evaluaciones está estrictamente prohibido.</p>
+                        <div class="mt-6 p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                             <h4 class="font-bold text-red-800">🚫 Tolerancia Cero con la Copia</h4>
+                             <p class="text-red-700 mt-2">Cualquier caso de deshonestidad académica será sancionado con una nota <strong>0 en la evaluación</strong> y se notificará formalmente a la Dirección General de Docencia y a tu jefatura de carrera.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fechas" class="content-section">
+                <h2 class="text-4xl font-extrabold text-slate-800 mb-4">Fechas Clave del Semestre</h2>
+                <p class="text-lg text-slate-600 mb-8">¡Organiza tu calendario! Aquí tienes las fechas más importantes. Recuerda que además hay evaluaciones semanales como controles, tickets y tareas.</p>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="p-4 font-bold text-slate-600">Evento</th>
+                                <th class="p-4 font-bold text-slate-600">Fecha</th>
+                                <th class="p-4 font-bold text-slate-600">Horario</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fechas-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="consejos" class="content-section">
+                <h2 class="text-4xl font-extrabold text-slate-800 mb-4">Consejos para el Éxito</h2>
+                <p class="text-lg text-slate-600 mb-8">Tu compromiso es el factor más importante para tener éxito en INF129. Sigue estos consejos para aprovechar el curso al máximo.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">1. Prepara la Pre-clase</h3>
+                        <p class="text-slate-700">Es fundamental que veas los videos y material de cada unidad ANTES de la clase. Llegar preparado te permitirá aprovechar mucho más las sesiones prácticas.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">2. Asiste a Todo</h3>
+                        <p class="text-slate-700">La asistencia a cátedras, laboratorios y ayudantías es crucial. La interacción y la práctica guiada son claves para dominar la programación.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">3. Organízate</h3>
+                        <p class="text-slate-700">Revisa las reglas del curso y anota todas las fechas importantes en tu calendario. Una buena planificación te evitará sorpresas y estrés.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">4. Usa los Recursos</h3>
+                        <p class="text-slate-700">SMOJ, guías, ejercicios de certámenes, el profesor y tu ayudante... Tienes un montón de apoyo a tu disposición. ¡No dudes en usarlo!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            const data = {
+                learningModel: [
+                    {
+                        icon: '�',
+                        title: 'Pre-clase',
+                        subtitle: 'Tu Preparación',
+                        description: 'Antes de cada sesión, deberás comprender los conceptos básicos de forma independiente a través de videos, apuntes interactivos y cuestionarios en Aula. ¡Esta es la base de todo!',
+                        color: 'bg-indigo-100',
+                        textColor: 'text-indigo-800'
+                    },
+                    {
+                        icon: '🧑‍🏫',
+                        title: 'Cátedra',
+                        subtitle: 'La Guía del Profesor',
+                        description: 'En la cátedra, el profesor te guiará para desarrollar las habilidades fundamentales de la programación, construyendo sobre lo que aprendiste en la pre-clase.',
+                        color: 'bg-sky-100',
+                        textColor: 'text-sky-800'
+                    },
+                    {
+                        icon: '💡',
+                        title: 'Lab + Ayudantía',
+                        subtitle: '¡A Programar!',
+                        description: 'Este es el espacio para aplicar todo lo aprendido. Resolverás problemas prácticos usando SMOJ, guías de laboratorio y ejercicios de certámenes. ¡Aquí es donde la magia ocurre!',
+                        color: 'bg-emerald-100',
+                        textColor: 'text-emerald-800'
+                    }
+                ],
+                keyDates: [
+                    { event: 'Inicio de Clases', date: 'Lunes 4 de agosto', time: '' },
+                    { event: 'Inicio Actividades Evaluadas', date: 'Semana del 11 de agosto', time: '' },
+                    { event: 'Certamen 1', date: 'Jueves 2 de octubre', time: '17:30 - 19:30' },
+                    { event: 'Certamen 2', date: 'Jueves 20 de noviembre', time: '17:30 - 19:30' },
+                    { event: 'Recuperativo', date: 'Martes 2 de diciembre', time: '17:30 - 19:30' },
+                ]
+            };
+
+            const learningModelContainer = document.getElementById('learning-model-container');
+            data.learningModel.forEach(model => {
+                const card = document.createElement('div');
+                card.className = `card p-6 rounded-2xl shadow-sm border border-slate-200 cursor-pointer bg-white`;
+                card.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 ${model.color} rounded-full flex items-center justify-center mr-4">
+                            <span class="text-2xl">${model.icon}</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold ${model.textColor}">${model.title}</h3>
+                            <p class="text-slate-500">${model.subtitle}</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-700">${model.description}</p>
+                `;
+                learningModelContainer.appendChild(card);
+            });
+
+            const fechasBody = document.getElementById('fechas-body');
+            data.keyDates.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-200 hover:bg-slate-50';
+                row.innerHTML = `
+                    <td class="p-4 text-slate-800 font-medium">${item.event}</td>
+                    <td class="p-4 text-slate-600">${item.date}</td>
+                    <td class="p-4 text-slate-600">${item.time}</td>
+                `;
+                fechasBody.appendChild(row);
+            });
+
+            function showSection(hash) {
+                const targetHash = hash || '#bienvenida';
+                
+                contentSections.forEach(section => {
+                    if ('#' + section.id === targetHash) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === targetHash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            document.getElementById('navigation').addEventListener('click', function(e) {
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    e.preventDefault();
+                    const link = e.target.closest('a');
+                    const hash = link.getAttribute('href');
+                    history.pushState(null, null, hash);
+                    showSection(hash);
+                }
+            });
+
+            window.addEventListener('popstate', () => {
+                showSection(window.location.hash);
+            });
+
+            showSection(window.location.hash);
+
+            const ctx = document.getElementById('ponderacionesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Certámenes (2)', 'Controles en Aula', 'Tareas + Interrogación', 'Ticket de Salida', 'Cuestionarios de Videos'],
+                    datasets: [{
+                        label: 'Ponderación',
+                        data: [50, 20, 20, 5, 5],
+                        backgroundColor: [
+                            '#3b82f6', // blue-500
+                            '#14b8a6', // teal-500
+                            '#f97316', // orange-500
+                            '#a855f7', // purple-500
+                            '#ec4899'  // pink-500
+                        ],
+                        borderColor: '#f8fafc',
+                        borderWidth: 4,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                color: '#334155',
+                                font: {
+                                    size: 14,
+                                    family: 'Inter'
+                                },
+                                boxWidth: 15,
+                                usePointStyle: true,
+                                pointStyle: 'rectRounded'
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: '#1e293b', // slate-800
+                            titleFont: { size: 16, weight: 'bold' },
+                            bodyFont: { size: 14 },
+                            padding: 15,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+�
