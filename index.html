@@ -9,33 +9,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Updated to a vibrant multi-color scale for better visual distinction. -->
-    <!-- Application Structure Plan: The application is designed as a single-page interactive dashboard with a fixed sidebar for navigation. This structure was chosen to provide students with a clear, non-linear way to access information. Instead of forcing them through a sequence of slides, they can jump directly to the section of interest (e.g., "Evaluaciones" or "Fechas Clave"). Key interactions include a dynamic chart for grade weighting and clickable cards for the learning model, making data consumption more engaging and intuitive than a static document. The user flow is centered on exploration, allowing students to quickly find answers to their specific questions. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Evaluation percentages (Certámenes 50%, Controles 20%, Tareas 20%, Cuestionarios 5%, Ticket Salida 5%). Goal: Inform & Compare. Viz/Method: Interactive Donut Chart. Interaction: Hover to see details of each evaluation component. Justification: A donut chart provides an immediate, intuitive understanding of how different evaluations contribute to the final grade, which is more effective than a simple table. Library: Chart.js (Canvas).
-        - Report Info: Three-pillar learning model (Pre-clase, Cátedra, Lab+Ayudantía). Goal: Organize & Explain. Viz/Method: Interactive Cards (HTML/CSS/JS). Interaction: Click on a card to expand and read the detailed description. Justification: This transforms a static concept into an engaging, explorable element, encouraging user interaction to learn more about each pillar. Method: HTML/Tailwind/JS.
-        - Report Info: Course Units & Key Dates. Goal: Inform. Viz/Method: Styled Lists & Tables. Interaction: None needed. Justification: For straightforward information like a list of topics or dates, clean, well-structured HTML tables and lists are the clearest and most accessible presentation method. Method: HTML/Tailwind.
-        - Report Info: Academic Honesty & Task Methodology. Goal: Emphasize & Inform. Viz/Method: Highlighted Text Blocks. Interaction: None needed. Justification: Key rules and consequences (like the 'nota 40' for not being able to explain code) are highlighted with distinct background colors and icons to draw immediate attention, ensuring critical information is not missed. Method: HTML/Tailwind.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Slightly cooler background */
-            color: #334155; /* Slate 700 for better contrast */
+            background-color: #f8fafc;
+            color: #334155;
         }
         .nav-link {
             transition: all 0.3s ease;
             transform-origin: left;
         }
         .nav-link.active {
-            background-color: #e0e7ff; /* Indigo 100 */
-            color: #3730a3; /* Indigo 800 */
+            background-color: #e0e7ff;
+            color: #3730a3;
             font-weight: 700;
-            border-left: 4px solid #4f46e5; /* Indigo 600 */
+            border-left: 4px solid #4f46e5;
         }
         .nav-link:not(.active):hover {
-            background-color: #f1f5f9; /* Slate 100 */
+            background-color: #f1f5f9;
             color: #334155;
             transform: scale(1.05);
         }
@@ -65,6 +57,10 @@
             .chart-container {
                 min-height: 400px;
             }
+        }
+        /* Estilo opcional para asegurar que el chat flote sobre todo */
+        #n8n-chat {
+            z-index: 9999;
         }
     </style>
 </head>
@@ -386,13 +382,43 @@ textColor: 'text-emerald-800'
             });
         });
     </script>
-</body>
+    
     <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
-<script type="module">
-	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+    
+    <div id="n8n-chat"></div>
 
-	createChat({
-		webhookUrl: 'YOUR_PRODUCTION_WEBHOOK_URL'
-	});
-</script>
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+        createChat({
+            webhookUrl: 'YOUR_PRODUCTION_WEBHOOK_URL',
+            webhookConfig: {
+                method: 'POST',
+                headers: {}
+            },
+            target: '#n8n-chat',
+            mode: 'window',
+            chatInputKey: 'chatInput',
+            chatSessionKey: 'sessionId',
+            loadPreviousSession: true,
+            metadata: {},
+            showWelcomeScreen: false,
+            defaultLanguage: 'en',
+            initialMessages: [
+                'Hi there! 👋',
+                'My name is Nathan. How can I assist you today?'
+            ],
+            i18n: {
+                en: {
+                    title: 'Hi there! 👋',
+                    subtitle: "Start a chat. We're here to help you 24/7.",
+                    footer: '',
+                    getStarted: 'New Conversation',
+                    inputPlaceholder: 'Type your question..',
+                },
+            },
+            enableStreaming: false,
+        });
+    </script>
+    </body>
 </html>
